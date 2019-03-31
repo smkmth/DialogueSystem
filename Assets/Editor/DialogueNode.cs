@@ -22,7 +22,8 @@ public class DialogueNode  {
 
     public Action<DialogueNode> OnRemoveNode;
 
-
+    public Dialogue dialogue;
+    public bool DialogueChecked =false;
 
 
     public DialogueNode(Vector2 position, float width, float height, GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint, Action<DialogueNode> OnClickRemoveNode)
@@ -49,6 +50,14 @@ public class DialogueNode  {
         inPoint.Draw();
         outPoint.Draw();
         GUI.Box(rect, title, style);
+        Rect insiderect = rect;
+        insiderect.width *= 0.9f;
+        insiderect.position += new Vector2(10.0f, 10.0f);
+        
+        GUILayout.BeginArea(insiderect);
+        dialogue = (Dialogue)EditorGUILayout.ObjectField(dialogue, typeof(Dialogue), true);
+     
+        GUILayout.EndArea();
     }
 
     public bool ProcessEvents(Event e)

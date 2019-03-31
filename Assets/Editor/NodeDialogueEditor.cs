@@ -24,6 +24,8 @@ public class NodeDialogueEditor : EditorWindow
 
 
 
+
+
     [MenuItem("Window/Dialogue Window")]
     private static void OpenWindow()
     {
@@ -61,6 +63,11 @@ public class NodeDialogueEditor : EditorWindow
         DrawNodes();
         DrawConnections();
         DrawConnectionLine(Event.current);
+        if (dialogueNodes != null)
+        {
+            CheckNodes();
+        }
+
 
         ProcessNodeEvents(Event.current);
 
@@ -149,6 +156,83 @@ public class NodeDialogueEditor : EditorWindow
 
     }
 
+    private void CheckNodes()
+    {
+        List<DialogueNode> uncheckedNodes = new List<DialogueNode>();
+        foreach (DialogueNode node in dialogueNodes)
+        {
+            if (node.DialogueChecked == false)
+            {
+                if (node.dialogue != null)
+                {
+                    if (node.dialogue.NextLine.Count > 0)
+                    {
+                        uncheckedNodes.Add(node);
+
+                    }
+                }
+            }
+        }
+        if (uncheckedNodes.Count > 0)
+        {
+            foreach (DialogueNode node in uncheckedNodes)
+            {
+
+                foreach (Dialogue dialogue in node.dialogue.NextLine)
+                {
+                    if (!NodeExists(dialogue))
+                    {
+                        DialogueNode connectingnode = AddNode(node.rect.center + Vector2.right * 60.0f);
+                        connectingnode.dialogue = dialogue;
+                        CreateConnection(node, connectingnode);
+                        connectingnode.DialogueChecked = true;
+
+                    }
+
+
+                }
+            }
+        }
+    
+    }
+
+    public bool NodeExists(DialogueNode newnode)
+    {
+        if (newnode.dialogue == null)
+        {
+            return false;
+        }
+
+        foreach(DialogueNode node in dialogueNodes)
+        {
+            if (node.dialogue != null && node.dialogue.Equals(newnode.dialogue))
+            {
+                return true;
+
+            }
+        }
+        return false;
+    }
+
+    public bool NodeExists(Dialogue newnode)
+    {
+        if (newnode == null)
+        {
+            return false;
+        }
+
+        foreach (DialogueNode node in dialogueNodes)
+        {
+            if (node.dialogue != null && node.dialogue.Equals(newnode))
+            {
+                return true;
+
+            }
+        }
+        return false;
+    }
+
+
     private void ProcessNodeEvents(Event e)
     {
         if (dialogueNodes != null)
@@ -227,6 +311,18 @@ public class NodeDialogueEditor : EditorWindow
 
     }
 
+    private DialogueNode AddNode(Vector2 pos)
+    {
+        if (dialogueNodes == null)
+        {
+            dialogueNodes = new List<DialogueNode>();
+        }
+
+        DialogueNode node = new DialogueNode(pos, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode);
+        dialogueNodes.Add(node);
+        return node;
+    }
+
     private void OnClickInPoint(ConnectionPoint inPoint)
     {
         selectedInPoint = inPoint;
@@ -266,6 +362,10 @@ public class NodeDialogueEditor : EditorWindow
 
     private void OnClickRemoveConnection(Connection connection)
     {
+        if (connection.outPoint.node.dialogue != null && connection.inPoint.node.dialogue != null)
+        {
+            connection.outPoint.node.dialogue.NextLine.Remove(connection.inPoint.node.dialogue);
+        }
         connections.Remove(connection);
 
     }
@@ -278,6 +378,33 @@ public class NodeDialogueEditor : EditorWindow
         }
 
         connections.Add(new Connection(selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
+        if (selectedInPoint.node.dialogue != null && selectedInPoint.node.dialogue != null)
+        {
+            selectedOutPoint.node.dialogue.NextLine.Add(selectedInPoint.node.dialogue);
+
+        }
+    }
+
+    private void CreateConnection(DialogueNode innode, DialogueNode outnode)
+    {
+        if (connections == null)
+        {
+            connections = new List<Connection>();
+        }
+
+        connections.Add(new Connection(innode.outPoint, outnode.inPoint, OnClickRemoveConnection));
+      
+
+    }
+
+    private void DestroyConnection(Connection connection)
+    {
+        if (connection.outPoint.node.dialogue != null && connection.inPoint.node.dialogue != null)
+        {
+            connection.outPoint.node.dialogue.NextLine.Remove(connection.inPoint.node.dialogue);
+        }
+        connections.Remove(connection);
+
 
     }
 
@@ -304,7 +431,8 @@ public class NodeDialogueEditor : EditorWindow
 
             for (int i = 0; i < connectionsToRemove.Count; i++)
             {
-                connections.Remove(connectionsToRemove[i]);
+                DestroyConnection(connectionsToRemove[i]);
+                //connections.Remove(connectionsToRemove[i]);
             }
 
             connectionsToRemove = null;
