@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Name: Dialogue
   m_EditorClassIdentifier: 
   CharacterName: 
-  Content: 
-  NextLine: []
+  Content: 'This is what the guy would say...
+
+'
+  NextLine:
+  - {fileID: 11400000, guid: bb52abb404ee3a04eaf56054d0aca407, type: 2}
+  StartPoint: 1

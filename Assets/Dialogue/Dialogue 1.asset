@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Name: Dialogue 1
   m_EditorClassIdentifier: 
   CharacterName: 
-  Content: 
+  Content: 'and like - this is a responce
+
+'
   NextLine: []
+  StartPoint: 0

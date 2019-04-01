@@ -13,4 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: 
   Content: 
-  NextLine: []
+  NextLine:
+  - {fileID: 11400000, guid: a3f05b4af16377649ada857d42bdf86a, type: 2}
+  - {fileID: 11400000, guid: 784f41c1ed42c2b4e9bd03a51bee728b, type: 2}
+  StartPoint: 0

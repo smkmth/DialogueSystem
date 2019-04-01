@@ -22,10 +22,6 @@ public class NodeDialogueEditor : EditorWindow
     private Vector2 drag;
 
 
-
-
-
-
     [MenuItem("Window/Dialogue Window")]
     private static void OpenWindow()
     {
@@ -63,14 +59,8 @@ public class NodeDialogueEditor : EditorWindow
         DrawNodes();
         DrawConnections();
         DrawConnectionLine(Event.current);
-        if (dialogueNodes != null)
-        {
-            CheckNodes();
-        }
-
-
+ 
         ProcessNodeEvents(Event.current);
-
         ProcessEvents(Event.current);
 
         if (GUI.changed) Repaint();
@@ -193,8 +183,10 @@ public class NodeDialogueEditor : EditorWindow
                 }
             }
         }
+        uncheckedNodes.Clear();
     
     }
+
 
     public bool NodeExists(DialogueNode newnode)
     {
@@ -308,7 +300,6 @@ public class NodeDialogueEditor : EditorWindow
         }
 
         dialogueNodes.Add(new DialogueNode(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
-
     }
 
     private DialogueNode AddNode(Vector2 pos)

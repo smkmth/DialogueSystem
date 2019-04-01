@@ -18,3 +18,4 @@ MonoBehaviour:
 '
   NextLine:
   - {fileID: 11400000, guid: f1041180459a9824880b487e5a100520, type: 2}
+  StartPoint: 0
