@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEditor;
-
+[Serializable]
 public class DialogueNode  {
 
     public Rect rect;
@@ -23,6 +23,7 @@ public class DialogueNode  {
     public Action<DialogueNode> OnRemoveNode;
 
     public Dialogue dialogue;
+    public string dialogueid;
     public bool DialogueChecked =false;
 
 
@@ -55,8 +56,9 @@ public class DialogueNode  {
         insiderect.position += new Vector2(10.0f, 10.0f);
         
         GUILayout.BeginArea(insiderect);
+
         dialogue = (Dialogue)EditorGUILayout.ObjectField(dialogue, typeof(Dialogue), true);
-     
+
         GUILayout.EndArea();
     }
 

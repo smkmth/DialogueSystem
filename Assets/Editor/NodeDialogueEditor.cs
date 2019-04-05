@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
+using System;
 
 public class NodeDialogueEditor : EditorWindow
 {
@@ -50,8 +52,16 @@ public class NodeDialogueEditor : EditorWindow
         outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
         outPointStyle.border = new RectOffset(4, 4, 12, 12);
 
+        LoadWindow();
+
     }
 
+    
+
+    private void OnDestroy()
+    {
+        SaveWindow();
+    }
     void OnGUI()
     {
         DrawGrid(20.0f, 0.2f, Color.gray);
@@ -62,6 +72,8 @@ public class NodeDialogueEditor : EditorWindow
  
         ProcessNodeEvents(Event.current);
         ProcessEvents(Event.current);
+
+     
 
         if (GUI.changed) Repaint();
 
@@ -423,13 +435,120 @@ public class NodeDialogueEditor : EditorWindow
             for (int i = 0; i < connectionsToRemove.Count; i++)
             {
                 DestroyConnection(connectionsToRemove[i]);
-                //connections.Remove(connectionsToRemove[i]);
             }
 
             connectionsToRemove = null;
         }
 
         dialogueNodes.Remove(node);
+    }
+
+    private void SaveWindow()
+    {
+
+        NodeGrid myInstance = new NodeGrid();
+        myInstance.connections = connections;
+        myInstance.dialogueNodes= dialogueNodes;
+        foreach(DialogueNode node in myInstance.dialogueNodes)
+        {
+            if(node.dialogue != null)
+            {
+                node.dialogueid = node.dialogue.name;
+                Debug.Log("saving " + node.dialogueid);
+            }
+            else
+            {
+
+                node.dialogueid = "!NoDialogueHere!";
+
+            }
+        }
+        myInstance.saveddata= "data";
+        SaveJsonData(myInstance, "Assets/Resources/Node.cfg");
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+       
+    }
+
+    private void LoadWindow()
+    {
+        NodeGrid myInstance = (NodeGrid)LoadJsonData("Assets/Resources/Node.cfg");
+
+        List<DialogueNode> tempnodes = new List<DialogueNode>();
+        List<Connection> tempconnects = new List<Connection>();
+
+        if (myInstance == null)
+        {
+            Debug.Log("No Saved Node Grid! ");
+
+            return;
+        }
+        else
+        {
+            tempnodes = myInstance.dialogueNodes;
+            tempconnects= myInstance.connections;
+        }
+        if (tempnodes.Count > 0) {
+
+            foreach (DialogueNode node in tempnodes)
+            {
+                Vector2 nodePos = new Vector2();
+                nodePos.x = node.rect.x;
+                nodePos.y = node.rect.y;
+                if (dialogueNodes == null)
+                {
+                    dialogueNodes = new List<DialogueNode>();
+                }
+
+
+                dialogueNodes.Add(
+                    new DialogueNode
+                    (
+                        nodePos, 
+                        200, 
+                        50,
+                        nodeStyle,
+                        selectedNodeStyle,
+                        inPointStyle,
+                        outPointStyle,
+                        OnClickInPoint,
+                        OnClickOutPoint,
+                        OnClickRemoveNode
+                    )
+                    );
+         
+
+
+            }
+        }
+
+  
+        
+    }
+
+
+    public void SaveJsonData(NodeGrid _data, string _fullPath)
+    {
+        string _json = JsonUtility.ToJson(_data);
+        File.WriteAllText(_fullPath, _json);
+        Debug.Log("<color=black>-Json- File Saved to: [" + _fullPath + "]</color>");
+    }
+
+    public NodeGrid LoadJsonData(string _fileName)
+    {
+
+        //string _path = Application.persistentDataPath + "/";
+
+        if (!File.Exists(_fileName)) 
+        {
+            Debug.LogError("Not Found: [" + _fileName  + "]");
+            return default(NodeGrid); //returns a null for reference type and 0 for values
+        }
+
+        NodeGrid _deserializedData = JsonUtility.FromJson<NodeGrid>(File.ReadAllText(_fileName));
+        Debug.Log("-Json- File Loaded: " + _fileName);
+
+        return _deserializedData;
     }
 
 
